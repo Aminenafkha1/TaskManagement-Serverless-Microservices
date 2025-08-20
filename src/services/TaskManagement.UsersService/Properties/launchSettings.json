@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TaskManagement_UsersService": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7071"
+    }
+  }
+}

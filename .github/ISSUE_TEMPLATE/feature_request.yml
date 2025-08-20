@@ -1,0 +1,152 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: "[FEATURE]: "
+labels: ["enhancement", "feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! 🚀
+        
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested
+          required: true
+        - label: I have read the project roadmap and documentation
+          required: true
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - New Functionality
+        - Enhancement to Existing Feature
+        - User Interface Improvement
+        - Performance Optimization
+        - Developer Experience
+        - Documentation
+        - Infrastructure
+        - Security Enhancement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve workflow
+        - High - Important for productivity
+        - Critical - Blocking current work
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Problem Description
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like
+      placeholder: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe alternatives you've considered
+      placeholder: A clear and concise description of any alternative solutions or features you've considered.
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Describe how this feature would be used
+      placeholder: |
+        As a [type of user], I want [goal] so that [benefit].
+        
+        Example:
+        As a project manager, I want to bulk assign tasks so that I can efficiently distribute work to my team.
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What needs to be implemented for this feature to be considered complete?
+      placeholder: |
+        - [ ] Criteria 1
+        - [ ] Criteria 2
+        - [ ] Criteria 3
+
+  - type: checkboxes
+    id: affected-areas
+    attributes:
+      label: Affected Areas
+      description: Which parts of the application would this feature affect?
+      options:
+        - label: Frontend/UI
+        - label: Backend/API
+        - label: Database
+        - label: Authentication
+        - label: Task Management
+        - label: User Management
+        - label: Dashboard/Analytics
+        - label: Notifications
+        - label: Infrastructure
+        - label: Documentation
+
+  - type: dropdown
+    id: implementation-complexity
+    attributes:
+      label: Implementation Complexity (if known)
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Low - Simple change or addition
+        - Medium - Moderate development effort
+        - High - Significant development effort
+        - Very High - Major architectural changes
+        - Unknown
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Screenshots
+      description: If applicable, add mockups, wireframes, or screenshots to help explain your feature
+      placeholder: Drag and drop images here or paste them
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, links, or examples about the feature request here
+      placeholder: Any additional information that would help understand and implement this feature
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you interested in contributing to this feature?
+      options:
+        - label: I would like to work on this feature
+        - label: I can provide design/UX input
+        - label: I can help with testing
+        - label: I can provide feedback during development

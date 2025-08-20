@@ -1,0 +1,32 @@
+{
+  "indexingMode": "consistent",
+  "automatic": true,
+  "includedPaths": [
+    {
+      "path": "/*"
+    }
+  ],
+  "excludedPaths": [
+    {
+      "path": "/\"_etag\"/?"
+    }
+  ],
+  "compositeIndexes": [
+    [
+      {
+        "path": "/email",
+        "order": "ascending"
+      }
+    ],
+    [
+      {
+        "path": "/department",
+        "order": "ascending"
+      },
+      {
+        "path": "/createdAt",
+        "order": "descending"
+      }
+    ]
+  ]
+}

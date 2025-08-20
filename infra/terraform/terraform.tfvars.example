@@ -1,0 +1,12 @@
+# Development environment configuration
+resource_group_name = "rg-taskmanagement-dev"
+location           = "East US"
+environment        = "dev"
+app_name          = "taskmanagement"
+
+tags = {
+  Environment = "dev"
+  Project     = "TaskManagement"
+  Owner       = "DevTeam"
+  CostCenter  = "IT"
+}

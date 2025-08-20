@@ -1,0 +1,187 @@
+@page "/dashboard"
+@using TaskManagement.Client.Services
+@inject ITaskService TaskService
+@inject IAuthenticationService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Dashboard - Task Management</PageTitle>
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">Dashboard</h1>
+            <p class="dashboard-subtitle">Welcome back! Here's what's happening with your tasks.</p>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading your dashboard...</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total-tasks">
+                <div class="stat-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@(dashboardStats?.TotalTasks ?? 0)</h3>
+                    <p>Total Tasks</p>
+                </div>
+            </div>
+
+            <div class="stat-card completed-tasks">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@(dashboardStats?.CompletedTasks ?? 0)</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+
+            <div class="stat-card pending-tasks">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@(dashboardStats?.PendingTasks ?? 0)</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+
+            <div class="stat-card overdue-tasks">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@(dashboardStats?.OverdueTasks ?? 0)</h3>
+                    <p>Overdue</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Tasks Section -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Recent Tasks</h2>
+                <button class="btn-create-task" @onclick="NavigateToCreateTask">
+                    <i class="fas fa-plus"></i>
+                    Create New Task
+                </button>
+            </div>
+
+            <div class="tasks-container">
+                @if (dashboardStats?.RecentTasks?.Any() == true)
+                {
+                    <div class="tasks-list">
+                        @foreach (var task in dashboardStats.RecentTasks.Take(5))
+                        {
+                            <div class="task-item @GetTaskStatusClass(task.Status)">
+                                <div class="task-info">
+                                    <h4 class="task-title">@task.Title</h4>
+                                    <p class="task-description">@task.Description</p>
+                                    <div class="task-meta">
+                                        <span class="task-priority priority-@task.Priority.ToString().ToLower()">
+                                            @task.Priority
+                                        </span>
+                                        <span class="task-due-date">
+                                            Due: @task.DueDate?.ToString("MMM dd, yyyy")
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <span class="task-status status-@task.Status.ToString().ToLower()">
+                                        @task.Status
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-clipboard"></i>
+                        </div>
+                        <h3>No tasks yet</h3>
+                        <p>Create your first task to get started!</p>
+                        <button class="btn-create-first-task" @onclick="NavigateToCreateTask">
+                            <i class="fas fa-plus"></i>
+                            Create Your First Task
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private DashboardStats? dashboardStats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            dashboardStats = await TaskService.GetDashboardStatsAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle error - could show a notification
+            Console.WriteLine($"Error loading dashboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void NavigateToCreateTask()
+    {
+        Navigation.NavigateTo("/tasks/create");
+    }
+
+    private string GetTaskStatusClass(TaskManagement.Client.Services.TaskStatus status)
+    {
+        return status switch
+        {
+            TaskManagement.Client.Services.TaskStatus.Completed => "task-completed",
+            TaskManagement.Client.Services.TaskStatus.InProgress => "task-in-progress",
+            TaskManagement.Client.Services.TaskStatus.Pending => "task-pending",
+            _ => "task-default"
+        };
+    }
+
+    private string GetStatusBadgeClass(TaskManagement.Client.Services.TaskStatus status)
+    {
+        return status switch
+        {
+            TaskManagement.Client.Services.TaskStatus.Completed => "badge-success",
+            TaskManagement.Client.Services.TaskStatus.InProgress => "badge-primary",
+            TaskManagement.Client.Services.TaskStatus.Pending => "badge-warning",
+            _ => "badge-secondary"
+        };
+    }
+
+    private string GetPriorityBadgeClass(TaskPriority priority)
+    {
+        return priority switch
+        {
+            TaskPriority.High => "badge-danger",
+            TaskPriority.Medium => "badge-warning",
+            TaskPriority.Low => "badge-info",
+            _ => "badge-secondary"
+        };
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "TaskManagement_TasksService": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7202",
+      "launchBrowser": false
+    }
+  }
+}

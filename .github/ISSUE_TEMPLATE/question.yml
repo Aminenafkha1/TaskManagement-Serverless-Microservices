@@ -1,0 +1,61 @@
+name: Question
+description: Ask a question about the project
+title: "[QUESTION]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in the Task Management System! 💬
+        
+        Before asking a question, please check:
+        - [Documentation](https://github.com/yourusername/task-management/wiki)
+        - [Existing Issues](https://github.com/yourusername/task-management/issues)
+        - [Discussions](https://github.com/yourusername/task-management/discussions)
+
+  - type: dropdown
+    id: question-type
+    attributes:
+      label: Question Type
+      description: What type of question is this?
+      options:
+        - Setup/Installation
+        - Configuration
+        - Usage/How-to
+        - Architecture/Design
+        - Troubleshooting
+        - Development
+        - Deployment
+        - Performance
+        - Security
+        - General
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to know?
+      placeholder: Please be as specific as possible...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any relevant context about your environment or use case
+      placeholder: |
+        - Environment: (Local/Azure/Other)
+        - Version: 
+        - Browser: 
+        - What you're trying to achieve:
+        - What you've already tried:
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Any other information that might be helpful
+      placeholder: Screenshots, error messages, links, etc.

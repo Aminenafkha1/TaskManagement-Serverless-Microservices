@@ -1,0 +1,25 @@
+﻿@page "/"
+@using TaskManagement.Client.Services
+@inject IAuthenticationService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Home</PageTitle>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is logged in
+        var isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        
+        if (isAuthenticated)
+        {
+            // User is logged in, redirect to dashboard
+            Navigation.NavigateTo("/dashboard");
+        }
+        else
+        {
+            // User is not logged in, redirect to login
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

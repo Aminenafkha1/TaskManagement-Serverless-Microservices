@@ -1,0 +1,54 @@
+{
+  "indexingMode": "consistent",
+  "automatic": true,
+  "includedPaths": [
+    {
+      "path": "/*"
+    }
+  ],
+  "excludedPaths": [
+    {
+      "path": "/\"_etag\"/?"
+    }
+  ],
+  "compositeIndexes": [
+    [
+      {
+        "path": "/assignedToUserId",
+        "order": "ascending"
+      }
+    ],
+    [
+      {
+        "path": "/createdByUserId",
+        "order": "ascending"
+      }
+    ],
+    [
+      {
+        "path": "/status",
+        "order": "ascending"
+      },
+      {
+        "path": "/priority",
+        "order": "ascending"
+      }
+    ],
+    [
+      {
+        "path": "/dueDate",
+        "order": "ascending"
+      }
+    ],
+    [
+      {
+        "path": "/category",
+        "order": "ascending"
+      },
+      {
+        "path": "/createdAt",
+        "order": "descending"
+      }
+    ]
+  ]
+}

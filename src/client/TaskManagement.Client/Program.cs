@@ -2,10 +2,14 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using TaskManagement.Client;
 using TaskManagement.Client.Services;
+using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
+// Add MudBlazor services
+builder.Services.AddMudServices();
 
 // Configure HttpClient
 builder.Services.AddScoped(sp => 

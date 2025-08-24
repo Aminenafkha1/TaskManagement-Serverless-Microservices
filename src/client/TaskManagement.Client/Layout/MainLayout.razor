@@ -1,78 +1,38 @@
 ﻿@using TaskManagement.Client.Services
+@using MudBlazor
 @inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @inherits LayoutComponentBase
 
-<div class="page @(isAuthenticated ? "" : "auth-page")">
-    @if (isAuthenticated)
-    {
-        <div class="app-layout">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <div class="brand">
-                        <i class="fas fa-tasks"></i>
-                        <span>TaskManager</span>
-                    </div>
-                </div>
-                
-                <nav class="sidebar-nav">
-                    <a href="/dashboard" class="nav-item @(IsActive("/dashboard"))">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="/tasks" class="nav-item @(IsActive("/tasks"))">
-                        <i class="fas fa-list-ul"></i>
-                        <span>All Tasks</span>
-                    </a>
-                    <a href="/tasks/create" class="nav-item @(IsActive("/tasks/create"))">
-                        <i class="fas fa-plus"></i>
-                        <span>Create Task</span>
-                    </a>
-                    <a href="/calendar" class="nav-item @(IsActive("/calendar"))">
-                        <i class="fas fa-calendar"></i>
-                        <span>Calendar</span>
-                    </a>
-                    <a href="/reports" class="nav-item @(IsActive("/reports"))">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </nav>
-                
-                <div class="sidebar-footer">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="user-details">
-                            <div class="user-name">@currentUser?.FullName</div>
-                            <div class="user-email">@currentUser?.Email</div>
-                        </div>
-                    </div>
-                    <button class="logout-btn" @onclick="HandleLogout" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </div>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-            <!-- Main Content -->
-            <div class="main-content">
+@if (isAuthenticated)
+{
+    <MudLayout>
+        <MudAppBar Elevation="1">
+            <MudIconButton Icon="Icons.Material.Filled.Task" Color="Color.Inherit" Edge="Edge.Start" />
+            <MudText Typo="Typo.h6" Class="ml-3">TaskManager</MudText>
+            <MudSpacer />
+            <MudText Typo="Typo.body2" Class="mr-4">@currentUser?.FullName</MudText>
+            <MudIconButton Icon="Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="HandleLogout" />
+        </MudAppBar>
+        
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
                 @Body
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="auth-layout">
-            <div class="auth-background">
-                <div class="auth-container">
-                    @Body
-                </div>
-            </div>
-        </div>
-    }
-</div>
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center mud-height-full">
+        @Body
+    </MudContainer>
+}
 
 @code {
     private bool isAuthenticated = false;
@@ -107,10 +67,5 @@
         isAuthenticated = false;
         currentUser = null;
         Navigation.NavigateTo("/login");
-    }
-
-    private string IsActive(string path)
-    {
-        return Navigation.Uri.Contains(path) ? "active" : "";
     }
 }

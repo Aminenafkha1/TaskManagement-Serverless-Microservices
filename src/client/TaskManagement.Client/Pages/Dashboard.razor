@@ -1,130 +1,229 @@
-@page "/dashboard"
+@page "/dashboard"  
+@using MudBlazor
 @using TaskManagement.Client.Services
+@using TaskManagement.Models
 @inject ITaskService TaskService
 @inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
 
 <PageTitle>Dashboard - Task Management</PageTitle>
 
-<div class="dashboard-container">
-    <!-- Header -->
-    <div class="dashboard-header">
-        <div class="header-content">
-            <h1 class="dashboard-title">Dashboard</h1>
-            <p class="dashboard-subtitle">Welcome back! Here's what's happening with your tasks.</p>
-        </div>
+<!-- Dashboard Header with Actions -->
+<div class="d-flex justify-space-between align-center mb-6">
+    <div>
+        <MudText Typo="Typo.h4" Class="mb-2">
+            <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-3" />
+            Dashboard
+        </MudText>
+        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+            Welcome back! Here's an overview of your task management system.
+        </MudText>
     </div>
-
-    @if (isLoading)
-    {
-        <div class="loading-container">
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Loading your dashboard...</p>
-            </div>
-        </div>
-    }
-    else
-    {
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card total-tasks">
-                <div class="stat-icon">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>@(dashboardStats?.TotalTasks ?? 0)</h3>
-                    <p>Total Tasks</p>
-                </div>
-            </div>
-
-            <div class="stat-card completed-tasks">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>@(dashboardStats?.CompletedTasks ?? 0)</h3>
-                    <p>Completed</p>
-                </div>
-            </div>
-
-            <div class="stat-card pending-tasks">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>@(dashboardStats?.PendingTasks ?? 0)</h3>
-                    <p>Pending</p>
-                </div>
-            </div>
-
-            <div class="stat-card overdue-tasks">
-                <div class="stat-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>@(dashboardStats?.OverdueTasks ?? 0)</h3>
-                    <p>Overdue</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Tasks Section -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2>Recent Tasks</h2>
-                <button class="btn-create-task" @onclick="NavigateToCreateTask">
-                    <i class="fas fa-plus"></i>
-                    Create New Task
-                </button>
-            </div>
-
-            <div class="tasks-container">
-                @if (dashboardStats?.RecentTasks?.Any() == true)
-                {
-                    <div class="tasks-list">
-                        @foreach (var task in dashboardStats.RecentTasks.Take(5))
-                        {
-                            <div class="task-item @GetTaskStatusClass(task.Status)">
-                                <div class="task-info">
-                                    <h4 class="task-title">@task.Title</h4>
-                                    <p class="task-description">@task.Description</p>
-                                    <div class="task-meta">
-                                        <span class="task-priority priority-@task.Priority.ToString().ToLower()">
-                                            @task.Priority
-                                        </span>
-                                        <span class="task-due-date">
-                                            Due: @task.DueDate?.ToString("MMM dd, yyyy")
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="task-actions">
-                                    <span class="task-status status-@task.Status.ToString().ToLower()">
-                                        @task.Status
-                                    </span>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-clipboard"></i>
-                        </div>
-                        <h3>No tasks yet</h3>
-                        <p>Create your first task to get started!</p>
-                        <button class="btn-create-first-task" @onclick="NavigateToCreateTask">
-                            <i class="fas fa-plus"></i>
-                            Create Your First Task
-                        </button>
-                    </div>
-                }
-            </div>
-        </div>
-    }
+    <div class="d-flex gap-2">
+        <MudButton Variant="Variant.Filled" 
+                  Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                  OnClick="NavigateToCreateTask">
+            New Task
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" 
+                  Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                  OnClick="RefreshDashboard">
+            Refresh
+        </MudButton>
+    </div>
 </div>
+
+@if (isLoading)
+{
+    <div class="d-flex justify-center py-8">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <!-- Key Metrics Cards -->
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Class="pa-4">
+                <MudCardContent Class="pb-2">
+                    <div class="d-flex align-center justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h4" Class="mb-1">@(dashboardStats?.TotalTasks ?? 0)</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Total Tasks</MudText>
+                        </div>
+                        <MudAvatar Color="Color.Primary" Size="Size.Large">
+                            <MudIcon Icon="@Icons.Material.Filled.Assignment" Size="Size.Medium" />
+                        </MudAvatar>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Class="pa-4">
+                <MudCardContent Class="pb-2">
+                    <div class="d-flex align-center justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h4" Class="mb-1">@(dashboardStats?.CompletedTasks ?? 0)</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Completed</MudText>
+                        </div>
+                        <MudAvatar Color="Color.Success" Size="Size.Large">
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Medium" />
+                        </MudAvatar>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Class="pa-4">
+                <MudCardContent Class="pb-2">
+                    <div class="d-flex align-center justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h4" Class="mb-1">@(dashboardStats?.PendingTasks ?? 0)</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">In Progress</MudText>
+                        </div>
+                        <MudAvatar Color="Color.Warning" Size="Size.Large">
+                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" />
+                        </MudAvatar>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Class="pa-4">
+                <MudCardContent Class="pb-2">
+                    <div class="d-flex align-center justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h4" Class="mb-1">@(dashboardStats?.OverdueTasks ?? 0)</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Overdue</MudText>
+                        </div>
+                        <MudAvatar Color="Color.Error" Size="Size.Large">
+                            <MudIcon Icon="@Icons.Material.Filled.Error" Size="Size.Medium" />
+                        </MudAvatar>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Content Grid -->
+    <MudGrid>
+        <!-- Quick Actions Panel -->
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Class="pa-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">
+                            <MudIcon Icon="@Icons.Material.Filled.FlashOn" Class="mr-2" />
+                            Quick Actions
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudStack Spacing="3">
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Primary" 
+                                  FullWidth="true"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                  OnClick="NavigateToCreateTask">
+                            Create New Task
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" 
+                                  Color="Color.Primary" 
+                                  FullWidth="true"
+                                   StartIcon="@Icons.Material.Filled.List"
+                                  OnClick="NavigateToAllTasks">
+                            View All Tasks
+                        </MudButton>
+                        <MudButton Variant="Variant.Text" 
+                                  Color="Color.Secondary" 
+                                  FullWidth="true"
+                                   StartIcon="@Icons.Material.Filled.Analytics"
+                                  OnClick="NavigateToAllTasks">
+                            View Analytics
+                        </MudButton>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- Recent Tasks -->
+        <MudItem xs="12" md="8">
+            <MudCard Elevation="2" Class="pa-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">
+                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Class="mr-2" />
+                            Recent Tasks
+                        </MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (dashboardStats?.RecentTasks?.Any() == true)
+                    {
+                        <MudList T="object" Clickable="true">
+                            @foreach (var task in dashboardStats.RecentTasks.Take(5))
+                            {
+                                <MudListItem>
+                                    <div class="d-flex align-center justify-space-between w-100">
+                                        <div class="flex-grow-1">
+                                            <MudText Typo="Typo.subtitle1" Class="mb-1">@task.Title</MudText>
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                                                @(task.Description?.Length > 50 ? task.Description.Substring(0, 50) + "..." : task.Description)
+                                            </MudText>
+                                            <div class="d-flex align-center gap-2">
+                                                <MudChip Size="Size.Small" Color="@GetPriorityColor(task.Priority)" Variant="Variant.Filled">
+                                                    @task.Priority
+                                                </MudChip>
+                                                @if (task.DueDate.HasValue)
+                                                {
+                                                    <MudChip Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Class="mr-1" />
+                                                        @task.DueDate.Value.ToString("MMM dd")
+                                                    </MudChip>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-center gap-2">
+                                            <MudChip Size="Size.Small" Color="@GetStatusColor(task.Status)" Variant="Variant.Outlined">
+                                                @task.Status.ToString().Replace("_", " ")
+                                            </MudChip>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" />
+                                        </div>
+                                    </div>
+                                </MudListItem>
+                                @if (task != dashboardStats.RecentTasks.Take(5).Last())
+                                {
+                                    <MudDivider />
+                                }
+                            }
+                        </MudList>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column align-center justify-center py-8">
+                            <MudIcon Icon="@Icons.Material.Filled.Assignment" Size="Size.Large" Color="Color.Secondary" Class="mb-3" />
+                            <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mb-2">No tasks found</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center mb-4">
+                                Get started by creating your first task to track your progress and stay organized.
+                            </MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToCreateTask">
+                                Create Your First Task
+                            </MudButton>
+                        </div>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
 
 @code {
     private bool isLoading = true;
@@ -132,13 +231,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
         try
         {
+            isLoading = true;
             dashboardStats = await TaskService.GetDashboardStatsAsync();
         }
         catch (Exception ex)
         {
-            // Handle error - could show a notification
             Console.WriteLine($"Error loading dashboard: {ex.Message}");
         }
         finally
@@ -147,43 +251,42 @@
         }
     }
 
+    private async Task RefreshDashboard()
+    {
+        await LoadDashboardData();
+    }
+
     private void NavigateToCreateTask()
     {
         Navigation.NavigateTo("/tasks/create");
     }
 
-    private string GetTaskStatusClass(TaskManagement.Client.Services.TaskStatus status)
+    private void NavigateToAllTasks()
+    {
+        Navigation.NavigateTo("/tasks");
+    }
+
+    private Color GetStatusColor(TaskManagement.Client.Services.TaskStatus status)
     {
         return status switch
         {
-            TaskManagement.Client.Services.TaskStatus.Completed => "task-completed",
-            TaskManagement.Client.Services.TaskStatus.InProgress => "task-in-progress",
-            TaskManagement.Client.Services.TaskStatus.ToDo => "task-todo",
-            TaskManagement.Client.Services.TaskStatus.Cancelled => "task-cancelled",
-            _ => "task-default"
+            TaskManagement.Client.Services.TaskStatus.ToDo => Color.Info,
+            TaskManagement.Client.Services.TaskStatus.InProgress => Color.Warning,
+            TaskManagement.Client.Services.TaskStatus.Completed => Color.Success,
+            TaskManagement.Client.Services.TaskStatus.Cancelled => Color.Error,
+            _ => Color.Default
         };
     }
 
-    private string GetStatusBadgeClass(TaskManagement.Client.Services.TaskStatus status)
-    {
-        return status switch
-        {
-            TaskManagement.Client.Services.TaskStatus.Completed => "badge-success",
-            TaskManagement.Client.Services.TaskStatus.InProgress => "badge-primary",
-            TaskManagement.Client.Services.TaskStatus.ToDo => "badge-warning",
-            TaskManagement.Client.Services.TaskStatus.Cancelled => "badge-secondary",
-            _ => "badge-secondary"
-        };
-    }
-
-    private string GetPriorityBadgeClass(TaskPriority priority)
+    private Color GetPriorityColor(TaskManagement.Client.Services.TaskPriority priority)
     {
         return priority switch
         {
-            TaskPriority.High => "badge-danger",
-            TaskPriority.Medium => "badge-warning",
-            TaskPriority.Low => "badge-info",
-            _ => "badge-secondary"
+            TaskManagement.Client.Services.TaskPriority.Low => Color.Info,
+            TaskManagement.Client.Services.TaskPriority.Medium => Color.Warning,
+            TaskManagement.Client.Services.TaskPriority.High => Color.Error,
+            TaskManagement.Client.Services.TaskPriority.Critical => Color.Dark,
+            _ => Color.Default
         };
     }
 }

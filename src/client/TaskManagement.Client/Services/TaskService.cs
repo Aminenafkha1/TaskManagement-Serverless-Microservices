@@ -3,6 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.JSInterop;
+using TaskManagement.Models;
+using TaskStatus = TaskManagement.Models.TaskStatus;
 
 namespace TaskManagement.Client.Services
 {
@@ -227,23 +229,7 @@ namespace TaskManagement.Client.Services
         public DateTime? DueDate { get; set; }
         public string? AssignedToUserId { get; set; }
     }
-
-    public class TaskItem
-    {
-        public Guid Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public TaskStatus Status { get; set; }
-        public TaskPriority Priority { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public DateTime? DueDate { get; set; }
-        public string CreatedByUserId { get; set; } = string.Empty;
-        public string? AssignedToUserId { get; set; }
-        public bool IsCompleted => Status == TaskStatus.Completed;
-        public bool IsOverdue => DueDate.HasValue && DueDate.Value < DateTime.Now && !IsCompleted;
-    }
-
+ 
     public class DashboardStats
     {
         public int TotalTasks { get; set; }
@@ -253,19 +239,6 @@ namespace TaskManagement.Client.Services
         public List<TaskItem> RecentTasks { get; set; } = new();
     }
 
-    public enum TaskStatus
-    {
-        ToDo = 0,
-        InProgress = 1,
-        Completed = 2,
-        Cancelled = 3
-    }
-
-    public enum TaskPriority
-    {
-        Low = 0,
-        Medium = 1,
-        High = 2,
-        Critical = 3
-    }
+ 
+ 
 }

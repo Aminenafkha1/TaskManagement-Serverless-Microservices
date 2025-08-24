@@ -1,0 +1,283 @@
+@page "/tasks"
+@using MudBlazor
+@using TaskManagement.Client.Services
+@using TaskManagement.Models
+@inject ITaskService TaskService
+@inject NavigationManager Navigation
+
+<PageTitle>Tasks - Task Management</PageTitle>
+
+<!-- Page Header -->
+<div class="d-flex justify-space-between align-center mb-6">
+    <div>
+        <MudText Typo="Typo.h4" Class="mb-2">
+            <MudIcon Icon="Icons.Material.Filled.Assignment" Class="mr-3" />
+            All Tasks
+        </MudText>
+        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+            Manage and track all your tasks in one place.
+        </MudText>
+    </div>
+    <div class="d-flex gap-2">
+        <MudButton Variant="Variant.Filled" 
+                  Color="Color.Primary" 
+                  StartIcon="Icons.Material.Filled.Add"
+                  OnClick="NavigateToCreateTask">
+            New Task
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" 
+                  Color="Color.Primary" 
+                  StartIcon="Icons.Material.Filled.Refresh"
+                  OnClick="RefreshTasks">
+            Refresh
+        </MudButton>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="d-flex justify-center py-8">
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <!-- Filter and Search Bar -->
+    <MudCard Elevation="1" Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudTextField @bind-Value="searchQuery" 
+                             Label="Search tasks..." 
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.Start" 
+                             AdornmentIcon="Icons.Material.Filled.Search"
+                             OnKeyUp="OnSearchKeyUp" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="selectedStatus" Label="Status" Variant="Variant.Outlined" T="string">
+                    <MudSelectItem Value="@("All")">All</MudSelectItem>
+                    <MudSelectItem Value="@("ToDo")">To Do</MudSelectItem>
+                    <MudSelectItem Value="@("InProgress")">In Progress</MudSelectItem>
+                    <MudSelectItem Value="@("Completed")">Completed</MudSelectItem>
+                    <MudSelectItem Value="@("Cancelled")">Cancelled</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="selectedPriority" Label="Priority" Variant="Variant.Outlined" T="string">
+                    <MudSelectItem Value="@("All")">All</MudSelectItem>
+                    <MudSelectItem Value="@("Low")">Low</MudSelectItem>
+                    <MudSelectItem Value="@("Medium")">Medium</MudSelectItem>
+                    <MudSelectItem Value="@("High")">High</MudSelectItem>
+                    <MudSelectItem Value="@("Critical")">Critical</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="2">
+                <MudButton Variant="Variant.Outlined" 
+                          Color="Color.Secondary"
+                          FullWidth="true"
+                          OnClick="ClearFilters">
+                    Clear Filters
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCard>
+
+    <!-- Tasks Table -->
+    <MudCard Elevation="2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Tasks (@filteredTasks.Count)</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent Class="pa-0">
+            @if (filteredTasks.Any())
+            {
+                <MudTable Items="@filteredTasks" Dense="true" Hover="true" Striped="true" T="TaskItem">
+                    <HeaderContent>
+                        <MudTh>Title</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Priority</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Due Date</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Title">
+                            <MudText Typo="Typo.subtitle2">@context.Title</MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Description">
+                            <MudText Typo="Typo.body2">
+                                @(context.Description?.Length > 50 ? context.Description.Substring(0, 50) + "..." : context.Description)
+                            </MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Priority">
+                            <MudChip T="@Color" Size="Size.Small" Color="@GetPriorityColor(context.Priority)" Variant="Variant.Filled">
+                                @context.Priority
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="@Color" Size="Size.Small" Color="@GetStatusColor(context.Status)" Variant="Variant.Outlined">
+                                @context.Status.ToString().Replace("_", " ")
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Due Date">
+                            @if (context.DueDate.HasValue)
+                            {
+                                <MudText Typo="Typo.body2" Color="@(context.DueDate < DateTime.Now ? Color.Error : Color.Default)">
+                                    @context.DueDate.Value.ToString("MMM dd, yyyy")
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">No due date</MudText>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Actions">
+                            <div class="d-flex gap-1">
+                                <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                             Color="Color.Primary" 
+                                             Size="Size.Small"
+                                             OnClick="@(() => EditTask(context.Id))" />
+                                <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                             Color="Color.Error" 
+                                             Size="Size.Small"
+                                             OnClick="@(() => DeleteTask(context.Id))" />
+                            </div>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+            else
+            {
+                <div class="d-flex flex-column align-center justify-center py-8">
+                    <MudIcon Icon="Icons.Material.Filled.Assignment" Size="Size.Large" Color="Color.Secondary" Class="mb-3" />
+                    <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mb-2">No tasks found</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center mb-4">
+                        @if (string.IsNullOrEmpty(searchQuery) && selectedStatus == "All" && selectedPriority == "All")
+                        {
+                            <span>You haven't created any tasks yet. Get started by creating your first task!</span>
+                        }
+                        else
+                        {
+                            <span>No tasks match your current filters. Try adjusting your search criteria.</span>
+                        }
+                    </MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NavigateToCreateTask">
+                        Create Your First Task
+                    </MudButton>
+                </div>
+            }
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    private bool isLoading = true;
+    private List<TaskItem> allTasks = new();
+    private List<TaskItem> filteredTasks = new();
+    private string searchQuery = "";
+    private string selectedStatus = "All";
+    private string selectedPriority = "All";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        try
+        {
+            isLoading = true;
+            allTasks = await TaskService.GetMyTasksAsync();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tasks: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task RefreshTasks()
+    {
+        await LoadTasks();
+    }
+
+    private void OnSearchKeyUp()
+    {
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        filteredTasks = allTasks.Where(task =>
+            (string.IsNullOrEmpty(searchQuery) || 
+             task.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+             (task.Description?.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ?? false)) &&
+            (selectedStatus == "All" || task.Status.ToString() == selectedStatus) &&
+            (selectedPriority == "All" || task.Priority.ToString() == selectedPriority)
+        ).ToList();
+
+        StateHasChanged();
+    }
+
+    private void ClearFilters()
+    {
+        searchQuery = "";
+        selectedStatus = "All";
+        selectedPriority = "All";
+        ApplyFilters();
+    }
+
+    private void NavigateToCreateTask()
+    {
+        Navigation.NavigateTo("/tasks/create");
+    }
+
+    private void EditTask(Guid taskId)
+    {
+        Navigation.NavigateTo($"/tasks/edit/{taskId}");
+    }
+
+    private async Task DeleteTask(Guid taskId)
+    {
+        // TODO: Add confirmation dialog
+        try
+        {
+            await TaskService.DeleteTaskAsync(taskId);
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting task: {ex.Message}");
+        }
+    }
+
+    private Color GetStatusColor(Models.TaskStatus status)
+    {
+        return status switch
+        {
+            Models.TaskStatus.Review => Color.Info,
+            Models.TaskStatus.InProgress => Color.Warning,
+            Models.TaskStatus.Done => Color.Success,
+            Models.TaskStatus.Cancelled => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetPriorityColor(Models.TaskPriority priority)
+    {
+        return priority switch
+        {
+            Models.TaskPriority.Low => Color.Info,
+            Models.TaskPriority.Medium => Color.Warning,
+            Models.TaskPriority.High => Color.Error,
+            Models.TaskPriority.Critical => Color.Dark,
+            _ => Color.Default
+        };
+    }
+}

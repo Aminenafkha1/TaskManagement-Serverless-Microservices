@@ -12,16 +12,60 @@
 @if (isAuthenticated)
 {
     <MudLayout>
+        <!-- Top App Bar -->
         <MudAppBar Elevation="1">
-            <MudIconButton Icon="Icons.Material.Filled.Task" Color="Color.Inherit" Edge="Edge.Start" />
-            <MudText Typo="Typo.h6" Class="ml-3">TaskManager</MudText>
+            <MudIconButton Icon="Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudText Typo="Typo.h6" Class="ml-3">Task Management System</MudText>
             <MudSpacer />
-            <MudText Typo="Typo.body2" Class="mr-4">@currentUser?.FullName</MudText>
-            <MudIconButton Icon="Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="HandleLogout" />
+            <MudText Typo="Typo.body2" Class="mr-4">Welcome, @currentUser?.FullName</MudText>
+            <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Dense="true">
+                <MudMenuItem Icon="Icons.Material.Filled.Person" OnClick="NavigateToProfile">Profile</MudMenuItem>
+                <MudMenuItem Icon="Icons.Material.Filled.Settings" OnClick="NavigateToSettings">Settings</MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Icon="Icons.Material.Filled.Logout" OnClick="HandleLogout">Logout</MudMenuItem>
+            </MudMenu>
         </MudAppBar>
         
+        <!-- Left Sidebar Navigation -->
+        <MudDrawer @bind-Open="drawerOpen" Elevation="1" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
+            <MudDrawerHeader>
+                <MudText Typo="Typo.h6" Class="mt-1">
+                    <MudIcon Icon="Icons.Material.Filled.Task" Class="mr-2" />
+                    @if (drawerOpen)
+                    {
+                        <span>TaskManager</span>
+                    }
+                </MudText>
+            </MudDrawerHeader>
+            <MudNavMenu>
+                <MudNavLink Href="/dashboard" Icon="Icons.Material.Filled.Dashboard" IconColor="Color.Primary">
+                    Dashboard
+                </MudNavLink>
+                <MudNavLink Href="/tasks" Icon="Icons.Material.Filled.Assignment" IconColor="Color.Secondary">
+                    Tasks
+                </MudNavLink>
+                <MudNavLink Href="/tasks/create" Icon="Icons.Material.Filled.Add" IconColor="Color.Success">
+                    Create Task
+                </MudNavLink>
+                <MudNavLink Href="/projects" Icon="Icons.Material.Filled.Folder" IconColor="Color.Info">
+                    Projects
+                </MudNavLink>
+                <MudNavLink Href="/reports" Icon="Icons.Material.Filled.Analytics" IconColor="Color.Warning">
+                    Reports
+                </MudNavLink>
+                <MudDivider Class="my-2" />
+                <MudNavLink Href="/settings" Icon="Icons.Material.Filled.Settings" IconColor="Color.Default">
+                    Settings
+                </MudNavLink>
+                <MudNavLink Href="/profile" Icon="Icons.Material.Filled.Person" IconColor="Color.Default">
+                    Profile
+                </MudNavLink>
+            </MudNavMenu>
+        </MudDrawer>
+        
+        <!-- Main Content Area -->
         <MudMainContent>
-            <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4 px-4">
                 @Body
             </MudContainer>
         </MudMainContent>
@@ -37,6 +81,7 @@ else
 @code {
     private bool isAuthenticated = false;
     private UserInfo? currentUser;
+    private bool drawerOpen = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,6 +104,21 @@ else
                 Navigation.NavigateTo("/login");
             }
         }
+    }
+
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    private void NavigateToProfile()
+    {
+        Navigation.NavigateTo("/profile");
+    }
+
+    private void NavigateToSettings()
+    {
+        Navigation.NavigateTo("/settings");
     }
 
     private async Task HandleLogout()

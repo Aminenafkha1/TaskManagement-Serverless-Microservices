@@ -266,26 +266,26 @@ else
         Navigation.NavigateTo("/tasks");
     }
 
-    private Color GetStatusColor(TaskManagement.Client.Services.TaskStatus status)
+    private Color GetStatusColor(Models.TaskStatus status)
     {
         return status switch
         {
-            TaskManagement.Client.Services.TaskStatus.ToDo => Color.Info,
-            TaskManagement.Client.Services.TaskStatus.InProgress => Color.Warning,
-            TaskManagement.Client.Services.TaskStatus.Completed => Color.Success,
-            TaskManagement.Client.Services.TaskStatus.Cancelled => Color.Error,
+            Models.TaskStatus.Review => Color.Info,
+            Models.TaskStatus.InProgress => Color.Warning,
+            Models.TaskStatus.Done => Color.Success,
+            Models.TaskStatus.Cancelled => Color.Error,
             _ => Color.Default
         };
     }
 
-    private Color GetPriorityColor(TaskManagement.Client.Services.TaskPriority priority)
+    private Color GetPriorityColor(TaskPriority priority)
     {
         return priority switch
         {
-            TaskManagement.Client.Services.TaskPriority.Low => Color.Info,
-            TaskManagement.Client.Services.TaskPriority.Medium => Color.Warning,
-            TaskManagement.Client.Services.TaskPriority.High => Color.Error,
-            TaskManagement.Client.Services.TaskPriority.Critical => Color.Dark,
+             TaskPriority.Low => Color.Info,
+            TaskPriority.Medium => Color.Warning,
+            TaskPriority.High => Color.Error,
+            TaskPriority.Critical => Color.Dark,
             _ => Color.Default
         };
     }

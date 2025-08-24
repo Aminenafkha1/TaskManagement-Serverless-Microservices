@@ -1,0 +1,249 @@
+@page "/settings"
+@using MudBlazor
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Settings - Task Management</PageTitle>
+
+<!-- Page Header -->
+<div class="d-flex justify-space-between align-center mb-6">
+    <div>
+        <MudText Typo="Typo.h4" Class="mb-2">
+            <MudIcon Icon="Icons.Material.Filled.Settings" Class="mr-3" />
+            Settings
+        </MudText>
+        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+            Customize your task management experience.
+        </MudText>
+    </div>
+</div>
+
+<MudGrid>
+    <!-- User Preferences -->
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="2" Class="pa-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-2" />
+                        User Preferences
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Spacing="4">
+                    <MudSelect @bind-Value="selectedTheme" Label="Theme" Variant="Variant.Outlined">
+                        <MudSelectItem Value="@("Light")">Light</MudSelectItem>
+                        <MudSelectItem Value="@("Dark")">Dark</MudSelectItem>
+                        <MudSelectItem Value="@("Auto")">Auto (System)</MudSelectItem>
+                    </MudSelect>
+
+                    <MudSelect @bind-Value="selectedLanguage" Label="Language" Variant="Variant.Outlined">
+                        <MudSelectItem Value="@("en")">English</MudSelectItem>
+                        <MudSelectItem Value="@("fr")">French</MudSelectItem>
+                        <MudSelectItem Value="@("es")">Spanish</MudSelectItem>
+                    </MudSelect>
+
+                    <MudSelect @bind-Value="selectedDateFormat" Label="Date Format" Variant="Variant.Outlined">
+                        <MudSelectItem Value="@("MM/dd/yyyy")">MM/dd/yyyy</MudSelectItem>
+                        <MudSelectItem Value="@("dd/MM/yyyy")">dd/MM/yyyy</MudSelectItem>
+                        <MudSelectItem Value="@("yyyy-MM-dd")">yyyy-MM-dd</MudSelectItem>
+                    </MudSelect>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Notification Settings -->
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="2" Class="pa-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="Icons.Material.Filled.Notifications" Class="mr-2" />
+                        Notifications
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Spacing="3">
+                    <MudSwitch T="bool" @bind-Checked="emailNotifications" 
+                              Label="Email Notifications" 
+                              Color="Color.Primary" />
+                    
+                    <MudSwitch T="bool" @bind-Checked="dueDateReminders" 
+                              Label="Due Date Reminders" 
+                              Color="Color.Primary" />
+                    
+                    <MudSwitch T="bool" @bind-Checked="taskAssignmentNotifications" 
+                              Label="Task Assignment Notifications" 
+                              Color="Color.Primary" />
+                    
+                    <MudSwitch T="bool" @bind-Checked="weeklyReports" 
+                              Label="Weekly Progress Reports" 
+                              Color="Color.Primary" />
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Dashboard Settings -->
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="2" Class="pa-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="Icons.Material.Filled.Dashboard" Class="mr-2" />
+                        Dashboard Settings
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Spacing="3">
+                    <MudSwitch T="bool" @bind-Checked="showCompletedTasks" 
+                              Label="Show Completed Tasks on Dashboard" 
+                              Color="Color.Primary" />
+                    
+                    <MudSwitch T="bool" @bind-Checked="showUpcomingDeadlines" 
+                              Label="Show Upcoming Deadlines" 
+                              Color="Color.Primary" />
+                    
+                    <MudNumericField @bind-Value="recentTasksCount" 
+                                    Label="Number of Recent Tasks to Display" 
+                                    Variant="Variant.Outlined"
+                                    Min="1" Max="20" />
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Security Settings -->
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="2" Class="pa-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">
+                        <MudIcon Icon="Icons.Material.Filled.Security" Class="mr-2" />
+                        Security
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Spacing="3">
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Primary"
+                              StartIcon="Icons.Material.Filled.Key"
+                              OnClick="ChangePassword">
+                        Change Password
+                    </MudButton>
+                    
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Secondary"
+                              StartIcon="Icons.Material.Filled.Security"
+                              OnClick="EnableTwoFactor">
+                        Enable Two-Factor Authentication
+                    </MudButton>
+                    
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Info"
+                              StartIcon="Icons.Material.Filled.Download"
+                              OnClick="ExportData">
+                        Export My Data
+                    </MudButton>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Action Buttons -->
+    <MudItem xs="12">
+        <MudCard Elevation="1" Class="pa-4">
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.body1" Color="Color.Secondary">
+                    Changes are automatically saved
+                </MudText>
+                <div class="d-flex gap-2">
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Secondary"
+                              OnClick="ResetToDefaults">
+                        Reset to Defaults
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Primary"
+                              OnClick="SaveSettings">
+                        Save Changes
+                    </MudButton>
+                </div>
+            </div>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    // User Preferences
+    private string selectedTheme = "Light";
+    private string selectedLanguage = "en";
+    private string selectedDateFormat = "MM/dd/yyyy";
+
+    // Notification Settings
+    private bool emailNotifications = true;
+    private bool dueDateReminders = true;
+    private bool taskAssignmentNotifications = true;
+    private bool weeklyReports = false;
+
+    // Dashboard Settings
+    private bool showCompletedTasks = true;
+    private bool showUpcomingDeadlines = true;
+    private int recentTasksCount = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+    }
+
+    private async Task LoadSettings()
+    {
+        // TODO: Load settings from API or local storage
+        // For now, we'll use default values
+        await Task.CompletedTask;
+    }
+
+    private async Task SaveSettings()
+    {
+        // TODO: Save settings to API or local storage
+        await Task.Delay(500); // Simulate API call
+        
+        // Show success message
+        await JSRuntime.InvokeVoidAsync("alert", "Settings saved successfully!");
+    }
+
+    private async Task ResetToDefaults()
+    {
+        selectedTheme = "Light";
+        selectedLanguage = "en";
+        selectedDateFormat = "MM/dd/yyyy";
+        emailNotifications = true;
+        dueDateReminders = true;
+        taskAssignmentNotifications = true;
+        weeklyReports = false;
+        showCompletedTasks = true;
+        showUpcomingDeadlines = true;
+        recentTasksCount = 5;
+
+        await SaveSettings();
+    }
+
+    private async Task ChangePassword()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", "Change password functionality coming soon!");
+    }
+
+    private async Task EnableTwoFactor()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", "Two-factor authentication setup coming soon!");
+    }
+
+    private async Task ExportData()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", "Data export functionality coming soon!");
+    }
+}

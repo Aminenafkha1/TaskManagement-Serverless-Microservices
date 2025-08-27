@@ -5,143 +5,94 @@
 
 <PageTitle>Register - Task Management</PageTitle>
 
-<div class="register-card">
-    <div class="register-header">
-        <div class="register-logo">
-            <i class="fas fa-user-plus"></i>
-        </div>
-        <h2 class="register-title">Create Account</h2>
-        <p class="register-subtitle">Join our task management platform</p>
-    </div>
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4" Style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+    <MudPaper Elevation="0" Class="pa-6" Style="width:100%;max-width:560px;">
+            <MudStack Spacing="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                    <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Size="Size.Large" Color="Color.Primary" />
+                    <MudText Typo="Typo.h5" Align="Align.Center">Create Account</MudText>
+                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Tertiary">Join our task management platform</MudText>
+                </MudStack>
 
-    <div class="register-body">
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="alert alert-danger" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                @errorMessage
-            </div>
-        }
-
-        @if (!string.IsNullOrEmpty(successMessage))
-        {
-            <div class="alert alert-success" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                @successMessage
-            </div>
-        }
-
-        <EditForm Model="@registerModel" OnValidSubmit="@HandleRegister" class="register-form">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger mb-3" />
-
-            <div class="form-group">
-                <label for="firstName" class="form-label">First Name</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <InputText id="firstName" class="form-control" @bind-Value="registerModel.FirstName" placeholder="Enter your first name" />
-                </div>
-                <ValidationMessage For="@(() => registerModel.FirstName)" class="text-danger" />
-            </div>
-
-            <div class="form-group">
-                <label for="lastName" class="form-label">Last Name</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <InputText id="lastName" class="form-control" @bind-Value="registerModel.LastName" placeholder="Enter your last name" />
-                </div>
-                <ValidationMessage For="@(() => registerModel.LastName)" class="text-danger" />
-            </div>
-
-            <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-envelope"></i>
-                    </span>
-                    <InputText id="email" class="form-control" @bind-Value="registerModel.Email" placeholder="Enter your email" />
-                </div>
-                <ValidationMessage For="@(() => registerModel.Email)" class="text-danger" />
-            </div>
-
-            <div class="form-group">
-                <label for="department" class="form-label">Department</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-building"></i>
-                    </span>
-                    <InputText id="department" class="form-control" @bind-Value="registerModel.Department" placeholder="Enter your department" />
-                </div>
-                <ValidationMessage For="@(() => registerModel.Department)" class="text-danger" />
-            </div>
-
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <InputText type="password" id="password" class="form-control" @bind-Value="registerModel.Password" placeholder="Create a strong password" />
-                </div>
-                <ValidationMessage For="@(() => registerModel.Password)" class="text-danger" />
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <InputText type="password" id="confirmPassword" class="form-control" @bind-Value="registerModel.ConfirmPassword" placeholder="Confirm your password" />
-                </div>
-                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-danger" />
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-register w-100" disabled="@isLoading">
-                @if (isLoading)
+                @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span>Creating Account...</span>
+                    <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
                 }
-                else
+                @if (!string.IsNullOrEmpty(SuccessMessage))
                 {
-                    <span>Create Account</span>
+                    <MudAlert Severity="Severity.Success" Dense="true">@SuccessMessage</MudAlert>
                 }
-            </button>
-        </EditForm>
 
-        <div class="register-footer">
-            <p class="text-center">
-                Already have an account? 
-                <a href="/login" class="login-link">Sign In</a>
-            </p>
-        </div>
-    </div>
-</div>
+                <MudForm @ref="_form" Model="@registerModel" OnValidSubmit="HandleRegister">
+                    <MudTextField Label="First name" For="@(() => registerModel.FirstName)" @bind-Value="registerModel.FirstName" Required="true" />
+                    <MudTextField Label="Last name" For="@(() => registerModel.LastName)" @bind-Value="registerModel.LastName" Required="true" />
+                    <MudTextField Label="Email" For="@(() => registerModel.Email)" @bind-Value="registerModel.Email" Required="true" />
+                    <MudTextField Label="Department" For="@(() => registerModel.Department)" @bind-Value="registerModel.Department" Required="true" />
+
+                    <MudTextField Label="Password"
+                                   For="@(() => registerModel.Password)"
+                                   @bind-Value="registerModel.Password"
+                                   Required="true"
+                                   InputType="@(_showPassword ? InputType.Text : InputType.Password)"
+                                   Adornment="Adornment.End"
+                                   AdornmentIcon="@(_showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                   OnAdornmentClick="@TogglePasswordVisibility" />
+
+                    <MudTextField Label="Confirm password"
+                                   For="@(() => registerModel.ConfirmPassword)"
+                                   @bind-Value="registerModel.ConfirmPassword"
+                                   Required="true"
+                                   InputType="@(_showConfirmPassword ? InputType.Text : InputType.Password)"
+                                   Adornment="Adornment.End"
+                                   AdornmentIcon="@(_showConfirmPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                   OnAdornmentClick="@ToggleConfirmPasswordVisibility" />
+
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" ButtonType="ButtonType.Submit" Disabled="@_loading">
+                        @if (_loading)
+                        {
+                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="me-2" />
+                            <span>Creating account...</span>
+                        }
+                        else
+                        {
+                            <span>Create Account</span>
+                        }
+                    </MudButton>
+                </MudForm>
+
+                <MudText Align="Align.Center" Typo="Typo.body2">
+                    Already have an account?
+                    <MudLink Href="/login">Sign In</MudLink>
+                </MudText>
+            </MudStack>
+    </MudPaper>
+</MudContainer>
 
 @code {
+    private MudForm? _form;
     private RegisterModel registerModel = new();
-    private string errorMessage = string.Empty;
-    private string successMessage = string.Empty;
-    private bool isLoading = false;
+    private string ErrorMessage = string.Empty;
+    private string SuccessMessage = string.Empty;
+    private bool _loading = false;
+    private bool _showPassword = false;
+    private bool _showConfirmPassword = false;
+
+    private void TogglePasswordVisibility() => _showPassword = !_showPassword;
+    private void ToggleConfirmPasswordVisibility() => _showConfirmPassword = !_showConfirmPassword;
 
     private async Task HandleRegister()
     {
         if (registerModel.Password != registerModel.ConfirmPassword)
         {
-            errorMessage = "Passwords do not match.";
+            ErrorMessage = "Passwords do not match.";
             return;
         }
 
         try
         {
-            isLoading = true;
-            errorMessage = string.Empty;
-            successMessage = string.Empty;
+            _loading = true;
+            ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
 
             var request = new RegisterRequest
             {
@@ -149,29 +100,29 @@
                 FirstName = registerModel.FirstName,
                 LastName = registerModel.LastName,
                 Password = registerModel.Password,
-                PhoneNumber = registerModel.Department // Use department as phone number for now
+                PhoneNumber = registerModel.Department
             };
 
             var result = await AuthService.RegisterAsync(request);
             
             if (result != null)
             {
-                successMessage = "Account created successfully! Redirecting to dashboard...";
-                await Task.Delay(2000); // Show success message for 2 seconds
+                SuccessMessage = "Account created successfully! Redirecting to dashboard...";
+                await Task.Delay(1200);
                 Navigation.NavigateTo("/dashboard");
             }
             else
             {
-                errorMessage = "Registration failed. Please check your information and try again.";
+                ErrorMessage = "Registration failed. Please check your information and try again.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occurred: {ex.Message}";
+            ErrorMessage = $"An error occurred: {ex.Message}";
         }
         finally
         {
-            isLoading = false;
+            _loading = false;
             StateHasChanged();
         }
     }

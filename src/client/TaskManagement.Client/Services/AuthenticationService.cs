@@ -1,7 +1,8 @@
 using Microsoft.JSInterop;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Net.Http.Json;
 
 namespace TaskManagement.Client.Services
 {
@@ -79,7 +80,7 @@ namespace TaskManagement.Client.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync($"{_baseApiUrl}/auth/login", request);
+                 var response = await _httpClient.PostAsJsonAsync($"{_baseApiUrl}/auth/login", request);
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -94,7 +95,7 @@ namespace TaskManagement.Client.Services
                 
                 return null;
             }
-            catch
+            catch ( Exception ex)
             {
                 return null;
             }

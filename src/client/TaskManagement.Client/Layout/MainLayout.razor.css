@@ -181,6 +181,14 @@
     background: #f8fafc;
 }
 
+/* Full-width content when not authenticated */
+.auth-main {
+    flex: 1;
+    margin-left: 0; /* no sidebar */
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {

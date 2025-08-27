@@ -4,7 +4,7 @@
 @inject IJSRuntime JSRuntime
 @inherits LayoutComponentBase
 
-<div class="page @(isAuthenticated ? "" : "auth-page")">
+<div class="page">
     @if (isAuthenticated)
     {
         <div class="app-layout">
@@ -64,12 +64,8 @@
     }
     else
     {
-        <div class="auth-layout">
-            <div class="auth-background">
-                <div class="auth-container">
-                    @Body
-                </div>
-            </div>
+    <div class="auth-main">
+            @Body
         </div>
     }
 </div>

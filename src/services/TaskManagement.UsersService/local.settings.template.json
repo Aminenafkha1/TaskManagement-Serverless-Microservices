@@ -1,0 +1,17 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "ASPNETCORE_ENVIRONMENT": "Development",
+
+    "CosmosConnectionString": "<cosmos-connection-string>",
+    "CosmosDbDatabaseName": "TaskManagementDB",
+    "ServiceBusConnection": "<service-bus-connection-string>",
+
+    "JwtSecretKey": "<set-a-strong-dev-secret-here>",
+    "JwtIssuer": "TaskManagement.UsersService",
+    "JwtAudience": "TaskManagement.Client",
+    "JwtExpirationMinutes": "60"
+  }
+}

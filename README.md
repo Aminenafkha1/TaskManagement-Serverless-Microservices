@@ -242,7 +242,12 @@ TaskManagement/
    # ... repeat for other services
    ```
 
-5. **Update connection strings in local.settings.json files**
+5. **Create local.settings.json from templates (do not commit these)**
+    - Copy template files and fill in your local values:
+       - `src/services/TaskManagement.UsersService/local.settings.template.json` → `local.settings.json`
+       - `src/services/TaskManagement.TasksService/local.settings.template.json` → `local.settings.json`
+       - `src/services/TaskManagement.MaterializedViewProcessor/local.settings.template.json` → `local.settings.json`
+    - These files are ignored by git; keep secrets local.
    ```json
    {
      "IsEncrypted": false,

@@ -1,76 +1,85 @@
 @page "/login"
-@using MudBlazor
 @using TaskManagement.Client.Services
 @inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
 
 <PageTitle>Login - Task Management</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="min-height: 100vh;">
-    <MudPaper Class="pa-8" Width="100%" MaxWidth="400px" Elevation="8">
-        <div class="d-flex flex-column align-center mb-6">
-            <MudIcon Icon="Icons.Material.Filled.Task" Size="Size.Large" Color="Color.Primary" Class="mb-2" />
-            <MudText Typo="Typo.h4" Color="Color.Primary" GutterBottom="true">TaskManager</MudText>
-            <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Sign in to manage your tasks</MudText>
+<div class="login-card">
+    <div class="login-header">
+        <div class="login-logo">
+            <i class="fas fa-tasks"></i>
         </div>
+        <h2 class="login-title">Welcome Back</h2>
+        <p class="login-subtitle">Sign in to your account</p>
+    </div>
 
+    <div class="login-body">
         @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <MudAlert Severity="Severity.Error" Class="mb-4">
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
                 @errorMessage
-            </MudAlert>
+            </div>
         }
 
-        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" class="login-form">
             <DataAnnotationsValidator />
-            
-            <MudTextField @bind-Value="loginModel.Email" 
-                         Label="Email" 
-                         Variant="Variant.Outlined" 
-                         InputType="InputType.Email"
-                         Adornment="Adornment.Start" 
-                         AdornmentIcon="Icons.Material.Filled.Email"
-                         Required="true" 
-                         RequiredError="Email is required!"
-                         Class="mb-4" />
+            <ValidationSummary class="text-danger mb-3" />
 
-            <MudTextField @bind-Value="loginModel.Password" 
-                         Label="Password" 
-                         Variant="Variant.Outlined" 
-                         InputType="InputType.Password"
-                         Adornment="Adornment.Start" 
-                         AdornmentIcon="Icons.Material.Filled.Lock"
-                         Required="true" 
-                         RequiredError="Password is required!"
-                         Class="mb-6" />
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                    <InputText id="email" class="form-control" @bind-Value="loginModel.Email" placeholder="Enter your email" />
+                </div>
+                <ValidationMessage For="@(() => loginModel.Email)" class="text-danger" />
+            </div>
 
-            <MudButton ButtonType="ButtonType.Submit" 
-                      Variant="Variant.Filled" 
-                      Color="Color.Primary" 
-                      Size="Size.Large"
-                      FullWidth="true"
-                      StartIcon="@(isLoading ? Icons.Material.Filled.HourglassEmpty : Icons.Material.Filled.Login)"
-                      Disabled="@isLoading"
-                      Class="mb-4">
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <InputText type="password" id="password" class="form-control" @bind-Value="loginModel.Password" placeholder="Enter your password" />
+                </div>
+                <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
+            </div>
+
+            <div class="form-group d-flex justify-content-between align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">
+                        Remember me
+                    </label>
+                </div>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-login w-100" disabled="@isLoading">
                 @if (isLoading)
                 {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     <span>Signing in...</span>
                 }
                 else
                 {
                     <span>Sign In</span>
                 }
-            </MudButton>
+            </button>
         </EditForm>
 
-        <div class="d-flex justify-center">
-            <MudText Typo="Typo.body2">
+        <div class="login-footer">
+            <p class="text-center">
                 Don't have an account? 
-                <MudLink Href="/register" Color="Color.Primary">Sign up</MudLink>
-            </MudText>
+                <a href="/register" class="register-link">Create Account</a>
+            </p>
         </div>
-    </MudPaper>
-</MudContainer>
+    </div>
+</div>
 
 @code {
     private LoginModel loginModel = new();

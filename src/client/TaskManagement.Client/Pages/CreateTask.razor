@@ -1,199 +1,141 @@
-@* @page "/tasks/create"
+@page "/tasks/create"
 @using TaskManagement.Client.Services
 @inject ITaskService TaskService
+@inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
 
-<PageTitle>Create Task - Task Management</PageTitle>
+<PageTitle>Create Task</PageTitle>
 
-<!-- Page Header -->
-<div class="d-flex justify-space-between align-center mb-6">
-    <div>
-        <MudText Typo="Typo.h4" Class="mb-2">
-            <MudIcon Icon="Icons.Material.Filled.Add" Class="mr-3" />
-            Create New Task
-        </MudText>
-        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
-            Add a new task to track your progress and stay organized.
-        </MudText>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <!-- Page Header -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Create New Task</h1>
+                <button class="btn btn-secondary" @onclick="GoBack">
+                    <i class="fas fa-arrow-left"></i> Back to Tasks
+                </button>
+            </div>
+
+            <!-- Create Task Form -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Task Details</h6>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+
+                    <EditForm Model="@taskModel" OnValidSubmit="@HandleCreateTask">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger mb-3" />
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                                    <InputText id="title" class="form-control" @bind-Value="taskModel.Title" 
+                                               placeholder="Enter task title..." />
+                                    <ValidationMessage For="@(() => taskModel.Title)" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Priority</label>
+                                    <InputSelect id="priority" class="form-select" @bind-Value="taskModel.Priority">
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <InputTextArea id="description" class="form-control" rows="4" 
+                                           @bind-Value="taskModel.Description"
+                                           placeholder="Enter task description..." />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="dueDate" class="form-label">Due Date</label>
+                                    <InputDate id="dueDate" class="form-control" @bind-Value="taskModel.DueDate" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" @onclick="GoBack">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary" disabled="@isCreating">
+                                @if (isCreating)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    <span>Creating...</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-save me-2"></i>
+                                    <span>Create Task</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
     </div>
-    <MudButton Variant="Variant.Outlined" 
-              Color="Color.Secondary"
-              StartIcon="Icons.Material.Filled.ArrowBack"
-              OnClick="GoBack">
-        Back to Tasks
-    </MudButton>
 </div>
 
-<MudCard Elevation="2" Class="pa-4">
-    <MudCardContent>
-        <MudForm @ref="form" Model="@newTask">
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudTextField @bind-Value="newTask.Title" 
-                                Label="Task Title" 
-                                Variant="Variant.Outlined"
-                                Required="true"
-                                RequiredError="Task title is required"
-                                MaxLength="100" />
-                </MudItem>
-                
-                <MudItem xs="12">
-                    <MudTextField @bind-Value="newTask.Description" 
-                                Label="Description" 
-                                Variant="Variant.Outlined"
-                                Lines="4"
-                                MaxLength="500"
-                                Placeholder="Provide a detailed description of the task..." />
-                </MudItem>
-                
-                <MudItem xs="12" md="6">
-                    <MudSelect @bind-Value="newTask.Priority" 
-                             Label="Priority" 
-                             Variant="Variant.Outlined"
-                             Required="true"
-                             T="TaskManagement.Client.Services.TaskPriority">
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskPriority.Low">Low</MudSelectItem>
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskPriority.Medium">Medium</MudSelectItem>
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskPriority.High">High</MudSelectItem>
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskPriority.Critical">Critical</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
-                
-                <MudItem xs="12" md="6">
-                    <MudSelect @bind-Value="newTask.Status" 
-                             Label="Status" 
-                             Variant="Variant.Outlined"
-                             Required="true"
-                             T="TaskManagement.Client.Services.TaskStatus">
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskStatus.ToDo">To Do</MudSelectItem>
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskStatus.InProgress">In Progress</MudSelectItem>
-                        <MudSelectItem Value="TaskManagement.Client.Services.TaskStatus.Completed">Completed</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
-                
-                <MudItem xs="12" md="6">
-                    <MudDatePicker @bind-Date="dueDate" 
-                                 Label="Due Date" 
-                                 Variant="Variant.Outlined"
-                                 MinDate="DateTime.Today" />
-                </MudItem>
-                
-                <MudItem xs="12" md="6">
-                    <MudTextField @bind-Value="newTask.AssignedTo" 
-                                Label="Assigned To (Optional)" 
-                                Variant="Variant.Outlined"
-                                Placeholder="Enter email address..." />
-                </MudItem>
-                
-                <MudItem xs="12">
-                    <MudTextField @bind-Value="newTask.Tags" 
-                                Label="Tags (Optional)" 
-                                Variant="Variant.Outlined"
-                                Placeholder="e.g., urgent, project-alpha, bug-fix (comma separated)" />
-                </MudItem>
-            </MudGrid>
-        </MudForm>
-    </MudCardContent>
-    
-    <MudCardActions Class="d-flex justify-space-between">
-        <MudButton Variant="Variant.Outlined" 
-                  Color="Color.Secondary"
-                  OnClick="GoBack">
-            Cancel
-        </MudButton>
-        
-        <div class="d-flex gap-2">
-            <MudButton Variant="Variant.Outlined" 
-                      Color="Color.Primary"
-                      OnClick="SaveAsDraft">
-                Save as Draft
-            </MudButton>
-            <MudButton Variant="Variant.Filled" 
-                      Color="Color.Primary"
-                      OnClick="SubmitTask"
-                      Disabled="isCreating">
-                @if (isCreating)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                    <span>Creating...</span>
-                }
-                else
-                {
-                    <MudIcon Icon="Icons.Material.Filled.Save" Class="mr-2" />
-                    <span>Create Task</span>
-                }
-            </MudButton>
-        </div>
-    </MudCardActions>
-</MudCard>
-
 @code {
-    private MudForm? form;
-    private TaskManagement.Client.Services.CreateTaskRequest newTask = new();
-    private DateTime? dueDate;
+    private CreateTaskRequest taskModel = new();
     private bool isCreating = false;
+    private string? errorMessage;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Set default values
-        newTask.Priority = TaskManagement.Client.Services.TaskPriority.Medium;
-        newTask.Status = TaskManagement.Client.Services.TaskStatus.ToDo;
+        if (!await AuthService.IsAuthenticatedAsync())
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
     }
 
-    private async Task SubmitTask()
+    private async Task HandleCreateTask()
     {
         try
         {
             isCreating = true;
-            
-            // Validate form
-            if (form != null)
-            {
-                await form.Validate();
-                if (!form.IsValid)
-                {
-                    return;
-                }
-            }
+            errorMessage = null;
 
-            // Set due date if provided
-            if (dueDate.HasValue)
-            {
-                newTask.DueDate = dueDate.Value;
-            }
-
-            // Create the task
-            await TaskService.CreateTaskAsync(newTask);
+            var createdTask = await TaskService.CreateTaskAsync(taskModel);
             
-            // Navigate back to tasks list
-            Navigation.NavigateTo("/tasks");
+            if (createdTask != null)
+            {
+                // Navigate back to tasks list
+                Navigation.NavigateTo("/tasks");
+            }
+            else
+            {
+                errorMessage = "Failed to create task. Please try again.";
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error creating task: {ex.Message}");
-            // TODO: Show error message to user
+            errorMessage = $"Error creating task: {ex.Message}";
         }
         finally
         {
             isCreating = false;
-        }
-    }
-
-    private async Task SaveAsDraft()
-    {
-        try
-        {
-            // Set status to a draft status if you have one
-            var originalStatus = newTask.Status;
-            newTask.Status = Models.TaskStatus.ToDo; // Use ToDo as draft for now
-            
-            await SubmitTask();
-            
-            newTask.Status = originalStatus;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving draft: {ex.Message}");
         }
     }
 
@@ -202,4 +144,3 @@
         Navigation.NavigateTo("/tasks");
     }
 }
-} *@

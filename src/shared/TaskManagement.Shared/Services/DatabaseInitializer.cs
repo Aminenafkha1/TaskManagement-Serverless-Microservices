@@ -59,7 +59,7 @@ namespace TaskManagement.Shared.Services
             return containerName switch
             {
                 "users" => "/email",      // Partition by email for users
-                "tasks" => "/userId",     // Partition by userId for tasks
+                "tasks" => "/id",     // Partition by userId for tasks
                 _ => "/id"                // Default partition key
             };
         }

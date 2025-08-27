@@ -1,0 +1,87 @@
+@using TaskManagement.Client.Services
+@using MudBlazor
+@inject ITaskService TaskService
+@inject IAuthenticationService AuthService
+
+<MudDialog MaxWidth="MaxWidth.Medium" CloseOnEscapeKey="true">
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-2">Create New Task</MudText>
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" Class="mb-2">@Error</MudAlert>
+        }
+
+    <MudForm @ref="_form" Model="task" @bind-IsValid="_valid">
+            <MudTextField Label="Title" For="@(() => task.Title)" @bind-Value="task.Title" Required="true" />
+            <MudTextField Label="Description" For="@(() => task.Description)" @bind-Value="task.Description" Lines="3" />
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="TaskManagement.Models.TaskPriority" Label="Priority" @bind-Value="task.Priority">
+                        <MudSelectItem Value="TaskManagement.Models.TaskPriority.Low">Low</MudSelectItem>
+                        <MudSelectItem Value="TaskManagement.Models.TaskPriority.Medium">Medium</MudSelectItem>
+                        <MudSelectItem Value="TaskManagement.Models.TaskPriority.High">High</MudSelectItem>
+                        <MudSelectItem Value="TaskManagement.Models.TaskPriority.Critical">Critical</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker Label="Due Date" @bind-Date="task.DueDate" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveAsync">
+            @if (_saving)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="me-2" />
+                <span>Creating...</span>
+            }
+            else
+            {
+                <span>Create</span>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudBlazor.IDialogReference? DialogRef { get; set; }
+
+    private CreateTaskRequest task = new();
+    private MudForm? _form;
+    private bool _valid;
+    private bool _saving;
+    private string? Error;
+
+    private void Cancel() => DialogRef?.Close(DialogResult.Cancel());
+
+    private async Task SaveAsync()
+    {
+        await _form!.Validate();
+        if (!_valid) return;
+        try
+        {
+            _saving = true;
+            Error = null;
+            var created = await TaskService.CreateTaskAsync(task);
+            if (created is not null)
+            {
+                DialogRef?.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                Error = "Failed to create task.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

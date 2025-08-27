@@ -2,77 +2,76 @@
 @inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 @inherits LayoutComponentBase
 
 <div class="page">
+
     @if (isAuthenticated)
     {
-        <div class="app-layout">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <div class="brand">
-                        <i class="fas fa-tasks"></i>
-                        <span>TaskManager</span>
-                    </div>
-                </div>
-                
-                <nav class="sidebar-nav">
-                    <a href="/dashboard" class="nav-item @(IsActive("/dashboard"))">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="/tasks" class="nav-item @(IsActive("/tasks"))">
-                        <i class="fas fa-list-ul"></i>
-                        <span>All Tasks</span>
-                    </a>
-                    <a href="/tasks/create" class="nav-item @(IsActive("/tasks/create"))">
-                        <i class="fas fa-plus"></i>
-                        <span>Create Task</span>
-                    </a>
-                    <a href="/calendar" class="nav-item @(IsActive("/calendar"))">
-                        <i class="fas fa-calendar"></i>
-                        <span>Calendar</span>
-                    </a>
-                    <a href="/reports" class="nav-item @(IsActive("/reports"))">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </nav>
-                
-                <div class="sidebar-footer">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="user-details">
-                            <div class="user-name">@currentUser?.FullName</div>
-                            <div class="user-email">@currentUser?.Email</div>
-                        </div>
-                    </div>
-                    <button class="logout-btn" @onclick="HandleLogout" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </div>
+        <MudLayout>
 
-            <!-- Main Content -->
-            <div class="main-content">
+            <MudAppBar Elevation="1" Color="Color.Primary" Fixed="true" Class="appbar">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" OnClick="ToggleDrawer" Edge="Edge.Start" />
+                <MudText Typo="Typo.h6" Class="ms-2 fw-bold brand">TaskManager</MudText>
+                <MudTextField T="string" Placeholder="Search" Variant="Variant.Outlined" 
+                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" 
+                              Class="mx-4 d-none d-md-flex search" />
+                <MudSpacer />
+                <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" />
+                <MudMenu Dense="true" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                    <ActivatorContent>
+                        <MudAvatar Class="ms-2" Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
+                        <MudMenuItem OnClick="HandleLogout">Logout</MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+            </MudAppBar>
+
+            <MudDrawer Anchor="Anchor.Left" Open="@_drawerOpen" Elevation="1" Variant="DrawerVariant.Persistent" Width="300" Clipped="true">
+                <MudDrawerHeader>
+                    <MudText Typo="Typo.subtitle1">Navigation</MudText>
+                </MudDrawerHeader>
+                <MudNavMenu>
+                    <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                    <MudNavLink Href="/tasks" Icon="@Icons.Material.Filled.List">Tasks</MudNavLink>
+                    <MudNavLink Icon="@Icons.Material.Filled.AddCircle" OnClick="OpenCreateTaskDialog">Create Task</MudNavLink>
+                    <MudNavLink Href="/reports" Icon="@Icons.Material.Filled.Assessment">Reports</MudNavLink>
+                </MudNavMenu>
+                <MudSpacer />
+                <div class="pa-2">
+                    <MudDivider Class="mb-2" />
+                    <MudStack Direction="Row" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudAvatar Icon="@Icons.Material.Filled.Person" Size="Size.Medium" />
+                        <MudTooltip Text="Logout">
+                            <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Error" OnClick="HandleLogout" />
+                        </MudTooltip>
+                    </MudStack>
+                </div>
+            </MudDrawer>
+
+            <MudMainContent Class="@($"app-main-content {(_drawerOpen ? "with-drawer" : string.Empty)}")" Style="padding-top:64px">
                 @Body
-            </div>
-        </div>
+            </MudMainContent>
+
+        </MudLayout>
     }
     else
     {
-    <div class="auth-main">
+        <div class="auth-main">
             @Body
         </div>
     }
+
 </div>
 
 @code {
     private bool isAuthenticated = false;
     private UserInfo? currentUser;
+    private bool _drawerOpen = true; // default opened
+    private bool isOnDashboard = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,6 +84,7 @@
         if (isAuthenticated)
         {
             currentUser = await AuthService.GetCurrentUserAsync();
+            UpdateRouteFlags();
         }
         else
         {
@@ -105,8 +105,44 @@
         Navigation.NavigateTo("/login");
     }
 
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
     private string IsActive(string path)
     {
         return Navigation.Uri.Contains(path) ? "active" : "";
+    }
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateRouteFlags();
+        _drawerOpen = true; // keep opened on route change
+        StateHasChanged();
+    }
+
+    private void UpdateRouteFlags()
+    {
+        var uri = Navigation.Uri.ToLowerInvariant();
+        isOnDashboard = uri.Contains("/dashboard");
+    }
+
+    private async Task OpenCreateTaskDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+    var dialogRef = await DialogService.ShowAsync<TaskManagement.Client.Components.ComponentCreateTask>("Create Task", options);
+    var dr = await dialogRef.Result;
+    if (dr?.Data is bool success && success)
+        {
+            Navigation.NavigateTo("/tasks", forceLoad: false);
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }

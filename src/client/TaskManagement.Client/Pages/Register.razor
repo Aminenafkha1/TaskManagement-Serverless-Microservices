@@ -62,7 +62,7 @@
 
                 <MudText Align="Align.Center" Typo="Typo.body2">
                     Already have an account?
-                    <MudLink Href="/login">Sign In</MudLink>
+                    <MudLink Href="#" OnClick="NavigateToLogin">Sign In</MudLink>
                 </MudText>
             </MudStack>
     </MudPaper>
@@ -79,6 +79,11 @@
 
     private void TogglePasswordVisibility() => _showPassword = !_showPassword;
     private void ToggleConfirmPasswordVisibility() => _showConfirmPassword = !_showConfirmPassword;
+
+    private void NavigateToLogin(MouseEventArgs _)
+    {
+        Navigation.NavigateTo("/login");
+    }
 
     private async Task HandleRegister()
     {

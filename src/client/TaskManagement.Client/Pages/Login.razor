@@ -85,6 +85,11 @@
 
     private void TogglePasswordVisibility() => _showPassword = !_showPassword;
 
+    private void NavigateToRegister(MouseEventArgs _)
+    {
+        Navigation.NavigateTo("/register");
+    }
+
     private async Task HandleLogin()
     {
         try

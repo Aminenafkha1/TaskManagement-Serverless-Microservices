@@ -5,6 +5,7 @@
 @inject IAuthenticationService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 @attribute [Authorize]
 
 <PageTitle>My Tasks</PageTitle>
@@ -15,7 +16,7 @@
             <h1 class="h3 mb-0 text-gray-800">My Tasks</h1>
         </div>
         <div class="col-auto">
-            <button class="btn btn-primary" @onclick="NavigateToCreateTask">
+            <button class="btn btn-primary" @onclick="OpenCreateTaskDialog">
                 <i class="fas fa-plus"></i> Create New Task
             </button>
         </div>
@@ -35,7 +36,7 @@
             <div class="card-body text-center">
                 <h5 class="card-title">No Tasks Found</h5>
                 <p class="card-text">You haven't created any tasks yet.</p>
-                <button class="btn btn-primary" @onclick="NavigateToCreateTask">
+                <button class="btn btn-primary" @onclick="OpenCreateTaskDialog">
                     Create Your First Task
                 </button>
             </div>
@@ -198,9 +199,15 @@
         ).OrderByDescending(t => t.CreatedAt);
     }
 
-    private void NavigateToCreateTask()
+    private async Task OpenCreateTaskDialog()
     {
-        Navigation.NavigateTo("/tasks/create");
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialogRef = await DialogService.ShowAsync<TaskManagement.Client.Components.ComponentCreateTask>("Create Task", options);
+        var dr = await dialogRef.Result;
+        if (dr?.Data is bool success && success)
+        {
+            await LoadTasks();
+        }
     }
 
     private void ViewTask(Guid taskId)
